@@ -3,6 +3,10 @@ Created by Thomas Nguyen
 12/30/2019
 https://github.com/ThomasWinn
 
+TODO:
+
+EXPLAIN IN DETAIL WHAT EACH FUNCTION DOES ANDS WHY
+
 
 NOTE: 
 
@@ -88,17 +92,14 @@ int participantIdx[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
                         15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
                         29, 30, 31, 32};
 
-
-
-
-
 /***********************************************************************************************************************                                      
 GLOBAL VARIABLES
 ***********************************************************************************************************************/
 
+// Getting the array size of the ParticipantIdx array
+int idxArraySize = sizeof(participantIdx) / sizeof(participantIdx[0]); 
 
-int idxArraySize = sizeof(participantIdx) / sizeof(participantIdx[0]); // 33
-
+// Initialization of our Linked List Data Structure
 struct Node* availableListHead;
 struct Node* removalListHead;
 
@@ -106,7 +107,7 @@ struct Node* removalListHead;
 GLOBAL STRUCTURES
 ***********************************************************************************************************************/
 
-// Linked list initialization 
+// Linked list Fields 
 struct Node 
 {
     int data;
@@ -248,6 +249,7 @@ bool checkNode (struct Node *head, int num)
 
 
 // mainly for debugging purposes
+// Prints out the designated linked list for you to see
 void printList(struct Node *node) 
 {
     struct Node *currentNode = node;
@@ -293,13 +295,15 @@ MAIN
 int main (int argc, const char* argv[]) 
 {
 
+    // Initialize common variable that will be used later in the code
+    // These values will tell us which dates to fill the max amount of names to the particular date
     int randomNumOne;
     int randomNumTwo;
     int randomNumThree;
     int randomNumFour;
     int randomNumFive;
 
-
+    // These represent the lowest and highest index to pick a random number from
     int lowerIdx = 0;
     int higherIdx = 32;
 
@@ -309,26 +313,10 @@ int main (int argc, const char* argv[])
     int numberOfParticipants = sizeof(CNYParticipants) / sizeof(CNYParticipants[0]); //33
     int numberOfDays = sizeof(schedulingDates) / sizeof(schedulingDates[0]); //17
 
-    // Sorts the list of people alphabetically by first name
+    // Sorts the list of people alphabetically by first name given an array
     qsort(CNYParticipants, numberOfParticipants, sizeof(CNYParticipants[0]), sorter);
 
-    // initializing linked list 
-    // NULL
-    // struct Node* availableListHead = NULL;
-    // struct Node* removalListHead = NULL;
-
-    // setup linked list of participants 
-    // data = index of array
     setLinkedListsAndIdxArray(availableListHead, removalListHead, numberOfParticipants);
-
-    // // PROBABLY DON'T NEED THIS
-    // // One full new sorted copy of CNYParticipants array
-    // for(int i = 0; i < numberOfParticipants; i++) 
-    // {
-    //     CNYParticipantsCopy[i] = CNYParticipants[i];
-    // }
-    // int numberOfParticipantsCopy = sizeof(CNYParticipantsCopy) / sizeof(CNYParticipantsCopy[0]);
-    // qsort(CNYParticipantsCopy, numberOfParticipantsCopy, sizeof(CNYParticipantsCopy[0]), sorter);
 
     // Assign number to everyone
     struct Student participant[numberOfParticipants];
@@ -338,26 +326,18 @@ int main (int argc, const char* argv[])
         participant[l].number = l + 1;
     }
 
-    /*
-    
-    TODO: 
-    
-    Get Random Num between date numbers !!!!!
-    
-    */
+   
 
-    // Date is our main struct we are using to finalize our layout
+    // Initialize the Date structure
+    // array of structures, d
     struct Date d[numberOfDays];
 
+    // Size of the amount of names that can be put into the char array's struct values
+    int eventSharingSize = sizeof(d[numberOfDays].eventSharing) / sizeof(d[numberOfDays].eventSharing[0]);
+    int facebookFrameSize = sizeof(d[numberOfDays].facebookFrame) / sizeof(d[numberOfDays].facebookFrame[0]); 
 
-    int remainderEventSharing = numberOfParticipants % numberOfDays; // should be 1 
-    int remainderFacebookFrame = numberOfParticipants % (numberOfDays - 2); // should be 5
-
-    int eventSharingSize = sizeof(d[numberOfDays].eventSharing) / sizeof(d[numberOfDays].eventSharing[0]); // 3
-    int facebookFrameSize = sizeof(d[numberOfDays].facebookFrame) / sizeof(d[numberOfDays].facebookFrame[0]); // 3
-    //printf("eventSharingSize: %d\n", eventSharingSize)
-
-    // Initializing both event sharing & facebook frame array values
+    // Initializing both event sharing & facebook frame array values to "-"
+    // If we don't do this, "garbage" will print out 
     for (int r = 0; r < numberOfDays; r++)
     {
         for(int o = 0; o < eventSharingSize; o++)
@@ -370,61 +350,65 @@ int main (int argc, const char* argv[])
         }
     }
 
+    /***********************************************************************************************************************                                      
+    SHARING EVENT
+    ***********************************************************************************************************************/
+
+    /*
+    
+    Change higher index to numberOfDays since we are trying to pick a random day to have 
+    3 names filled in their array instead of 2 like everyother
+
+    reinitialize higher index to 32 for future use
+
+    */
+
     higherIdx = numberOfDays;
     randomNumOne = getRandomIdx(lowerIdx, higherIdx);
     higherIdx = 32;
-    //printf("Random Number One = %d\n", randomNumOne);
+
+    /*
+    
+    Iterate through all the days and add the date to the struct.
+
+    
+    */
 
     for(int m = 0; m < numberOfDays; m++) 
     {
         strcpy(d[m].day, schedulingDates[m]);
-        //printf("day: %s\n", d[m].day);
         
-        // fill struct for event sharing
-        // to only take in up to 3 people at half way point
+        // Catches the case for when to add an extra name to array in struct
         if(m == randomNumOne) 
         {
-            //break;
             for(int i = 0; i < eventSharingSize; i++) 
             {
                 int flag = 1;
                 int randomIdx;
                 while(flag == 1)
                 {
-                    //printf("Attempting to get random idx number...\n");
-                    randomIdx = getRandomIdx(lowerIdx,higherIdx); // 0 - 32
-                    //printf("randomIdx: %d\n", randomIdx);
+                    // Keep track of a random Index to find in the participantIdx 
+                    randomIdx = getRandomIdx(lowerIdx, higherIdx); 
 
+                    // Keep track of the actual number to delete using the index it got randomly
                     int numToDeleteOrAdd = deleteElementFromArray(participantIdx, randomIdx, idxArraySize);
-                    higherIdx--; // after we delete element in array, we decrease the highest value it can get a random idx from
-                    //printf("higheridx: %d\n", higherIdx);
 
-                    // check to see if it is in the available list, if it is, delete in idx array, avail ,and add it to removal list, else select a new rando idx
+                    // After we delete element in array, we decrease the highest value it can get a random idx from
+                    higherIdx--; 
+
                     bool nodeCheck = checkNode(availableListHead, numToDeleteOrAdd);
 
+                    // If the student's number is found in the availableList it can delete it and add it to the removal list
+                    // The student's name is then added into the struct
                     if(nodeCheck == true)
                     {
-                        //printf("nodeCheck Passes for idx: \t%d which is: \t%d\n", randomIdx, numToDeleteOrAdd);
                         deleteNode(&availableListHead, numToDeleteOrAdd);
                         addNodeToEnd(&removalListHead, numToDeleteOrAdd);
                         strcpy(d[m].eventSharing[i], CNYParticipants[numToDeleteOrAdd]);
-
-                        // DEBUG - 
-                        // printf("Available List: \n");
-                        // printList(availableListHead);
-                        // printf("\n");
-                        // printf("\n");
-                        // printf("\n");
-                        // printf("Removal List: \n");
-                        // printList(removalListHead);
-                        // printf("\n");
-                        // printf("\n");
-                        // printf("\n");
-                        // printf("The name that was added: %s\n", d[m].eventSharing[i] );
-
-
                         flag = 0;
                     }
+
+                    // Error check
                     else 
                     {
                         printf("nodeCheck FAILED.\n");
@@ -442,41 +426,28 @@ int main (int argc, const char* argv[])
             int randomIdx;
             while(flag == 1)
             {
-                //printf("Attempting to get random idx number...\n");
-                randomIdx = getRandomIdx(lowerIdx,higherIdx); // 0 - 32
-                //printf("randomIdx: %d\n", randomIdx);
+                // Keep track of a random Index to find in the participantIdx 
+                randomIdx = getRandomIdx(lowerIdx,higherIdx); 
 
+                // Keep track of the actual number to delete using the index it got randomly
                 int numToDeleteOrAdd = deleteElementFromArray(participantIdx, randomIdx, idxArraySize);
-                higherIdx--; // after we delete element in array, we decrease the highest value it can get a random idx from
-                //printf("higheridx: %d\n", higherIdx);
 
-                // check to see if it is in the available list, if it is, delete in idx array, avail ,and add it to removal list, else select a new rando idx
+                // After we delete element in array, we decrease the highest value it can get a random idx from
+                higherIdx--; 
+
                 bool nodeCheck = checkNode(availableListHead, numToDeleteOrAdd);
 
+                // If the student's number is found in the availableList it can delete it and add it to the removal list
+                // The student's name is then added into the struct
                 if(nodeCheck == true)
                 {
-                    //printf("nodeCheck Passes for idx: \t%d which is: \t%d\n", randomIdx, numToDeleteOrAdd);
                     deleteNode(&availableListHead, numToDeleteOrAdd);
                     addNodeToEnd(&removalListHead, numToDeleteOrAdd);
                     strcpy(d[m].eventSharing[i], CNYParticipants[numToDeleteOrAdd]);
-
-                    // //DEBUG - Checking the linked lists to see what is happening
-                        // printf("Available List: \n");
-                        // printList(availableListHead);
-                        // printf("\n");
-                        // printf("\n");
-                        // printf("\n");
-                        // printf("Removal List: \n");
-                        // printList(removalListHead);
-                        // printf("\n");
-                        // printf("\n");
-                        // printf("\n");
-                        // printf("The name that was added: %s\n", d[p].eventSharing[i] );
-                        // printf("\n ---------------------------------------------------------------------------------- \n");
-
-
                     flag = 0;
                 }
+
+                // Error Check
                 else 
                 {
                     printf("nodeCheck FAILED.\n");
@@ -486,103 +457,34 @@ int main (int argc, const char* argv[])
         }
     }   
 
-    // //DEBUG - check to see if nothing in available list and all values used in removal list ~~ array index should be all 32's
-    // printf("Available List: \n");
-    // printList(availableListHead);
-    // printf("\n");
-    // printf("\n");
-    // printf("\n");
-    // printf("Removal List: \n");
-    // printList(removalListHead);
-    // printf("\n");
-    // printf("\n");
-    // printf("\n");
-    // printf("Array Index: \n");
-    // for(int lol = 0; lol  < idxArraySize; lol++)
-    // {
-    //     printf("%d\t", participantIdx[lol]);
-    // }
-    // printf("\n");
-    // printf("\n");
-    // printf("\n");
-    // printf("\n");
+    /***********************************************************************************************************************                                      
+    SHARING FACEBOOK FRAME 
+    ***********************************************************************************************************************/
 
-    // for(int check = 0; check < numberOfDays; check++)
-    // {
-    //     printf("Day: %s\n", d[check].day);
-    //     printf("Event Sharing Names: ");
-    //     for(int i = 0; i < eventSharingSize; i++) 
-    //     {
-    //         printf("%s, ", d[check].eventSharing[i]);
-    //     }
-    //     printf("\n");
-    //     printf("\n");
-    //     printf("\n");
-    // }
-    
-
-
-    // Reset all values before doing the next one
+    // Reset all values before filling the next array in the struct
     // sorted array stays the same
     // higherIdx needs resetting as it was decremented to 0
     // global idxArray needs resetting and available/removal linked list
+
     higherIdx = 32;
-    //setGlobalIdxArray();
     setLinkedListsAndIdxArray(availableListHead, removalListHead, numberOfParticipants);
 
-    // for(int ck = 0; ck < numberOfParticipants; ck++)
-    // {
-    //     addNodeToEnd(&availableListHead, ck);
+    /*
+    
+    The first two days is not allowed to have anyone sharing the facebook frame, so we increment the lowerIdx
+    We also want the higherIdx to be the numberOfDays available
 
-    // }
-    // removalListHead = NULL;
+    When picking a random number we can't have the same values picked, so we need to 
+    delete the number out of a list to prevent it being picked in a future call
 
-    // printf("\n");
-    // printf("\n");
-    // printf("\n");
-    // printf("\n");
-    // printf("\n");
-    // printf("\n");
-    // printf("HigherIdx: %d\n", higherIdx);
-    // printf("Available List: \n");
-    // printList(availableListHead);
-    // printf("\n");
-    // printf("\n");
-    // printf("\n");
-    // printf("Removal List: \n");
-    // printList(removalListHead);
-    // printf("\n");
-    // printf("\n");
-    // printf("\n");
-    // printf("Array Index: \n");
-    // for(int lol = 0; lol  < idxArraySize; lol++)
-    // {
-    //     printf("%d\t", participantIdx[lol]);
-    // }
-    // printf("\n");
+    We pick 5 random indexes to fill the array struct completely
 
-    // printf("\n\n\n\n\n");
-    // printf("SECOND PHASE\n");
-    // printf("\n\n\n\n\n");
+    Then reset all values to original
 
-    // printf("Array Index: \n");
-    // for(int lol = 0; lol  < idxArraySize; lol++)
-    // {
-    //     printf("%d\t", participantIdx[lol]);
-    // }
+    This whole process is just like the sharing event section above except theres more days that require all 
+    array valeus filled
 
-    // printf("\n");
-
-    // printList(availableListHead);
-    // printf("\n");
-    // printList(removalListHead);
-    // printf("\n");
-    // printf("\n\n");
-
-
-  
-
-    // This will get us 5 different indexes where we can have max struct elements filled in the facebook sharing field
+    */
 
     lowerIdx = 2;
     higherIdx = numberOfDays;
@@ -607,69 +509,46 @@ int main (int argc, const char* argv[])
     higherIdx = 32;
     setLinkedListsAndIdxArray(availableListHead, removalListHead, numberOfParticipants);
 
-    printf("randomNum1: %d\n", randomNumOne);
-    printf("randomNum2: %d\n", randomNumTwo);
-    printf("randomNum3: %d\n", randomNumThree);
-    printf("randomNum4: %d\n", randomNumFour);
-    printf("randomNum5: %d\n", randomNumFive);
-
-
     for (int p = 0; p < numberOfDays; p++)
     {
 
-        //printf("Date: %s\n", d[p].day);
-
+        // Skips the first two days not entering anything into their struct
         if(p == 0 || p == 1) 
         {
             continue;
         }
 
-        // fill struct for facebook sharing
+        // On the certain days, we have 3 names in the array fields in struct
         if(p == randomNumOne || p == randomNumTwo || p == randomNumThree || p == randomNumFour || p == randomNumFive) 
         {
-            //printf("3 IN STRUCT\n");
-            // if condition for 3 people in struct
             for(int i = 0; i < facebookFrameSize; i++) 
             {
                 int flag = 1;
                 int randomIdx;
                 while(flag == 1)
                 {
-                    //printf("Attempting to get random idx number...\n");
-                    randomIdx = getRandomIdx(lowerIdx,higherIdx); // 0 - 32
-                    //printf("randomIdx: %d\n", randomIdx);
+                    // Keep track of a random Index to find in the participantIdx 
+                    randomIdx = getRandomIdx(lowerIdx,higherIdx); 
 
+                    // Keep track of the actual number to delete using the index it got randomly
                     int numToDeleteOrAdd = deleteElementFromArray(participantIdx, randomIdx, idxArraySize);
-                    higherIdx--; // after we delete element in array, we decrease the highest value it can get a random idx from
-                    //printf("higheridx: %d\n", higherIdx);
 
-                    // check to see if it is in the available list, if it is, delete in idx array, avail ,and add it to removal list, else select a new rando idx
+                    // after we delete element in array, we decrease the highest value it can get a random idx from
+                    higherIdx--; 
+
                     bool nodeCheck = checkNode(availableListHead, numToDeleteOrAdd);
 
+                    // If the student's number is found in the availableList it can delete it and add it to the removal list
+                    // The student's name is then added into the struct
                     if(nodeCheck == true)
                     {
-                        //printf("nodeCheck Passes for idx: \t%d which is: \t%d\n", randomIdx, numToDeleteOrAdd);
                         deleteNode(&availableListHead, numToDeleteOrAdd);
                         addNodeToEnd(&removalListHead, numToDeleteOrAdd);
                         strcpy(d[p].facebookFrame[i], CNYParticipants[numToDeleteOrAdd]);
-
-                        // //DEBUG - Checking the linked lists to see what is happening
-                        // printf("Available List: \n");
-                        // printList(availableListHead);
-                        // printf("\n");
-                        // printf("\n");
-                        // printf("\n");
-                        // printf("Removal List: \n");
-                        // printList(removalListHead);
-                        // printf("\n");
-                        // printf("\n");
-                        // printf("\n");
-                        // printf("The name that was added: %s\n", d[p].facebookFrame[i] );
-                        // printf("\n ---------------------------------------------------------------------------------- \n");
-
-
                         flag = 0;
                     }
+
+                    // Error Check
                     else 
                     {
                         printf("nodeCheck FAILED.\n");
@@ -681,50 +560,37 @@ int main (int argc, const char* argv[])
 
         }
     
-        // fill struct for more than 2 people 
+        // fill struct for more only 2 people 
         else
         {
-            // if condition for 2 people in struct
             for(int i = 0; i < (facebookFrameSize-1); i++) 
             {
                 int flag = 1;
                 int randomIdx;
                 while(flag == 1)
                 {
-                    //printf("Attempting to get random idx number...\n");
-                    randomIdx = getRandomIdx(lowerIdx,higherIdx); // 0 - 32
-                    //printf("randomIdx: %d\n", randomIdx);
+                    // Keep track of a random Index to find in the participantIdx 
+                    randomIdx = getRandomIdx(lowerIdx,higherIdx); 
 
+                    // Keep track of the actual number to delete using the index it got randomly
                     int numToDeleteOrAdd = deleteElementFromArray(participantIdx, randomIdx, idxArraySize);
-                    higherIdx--; // after we delete element in array, we decrease the highest value it can get a random idx from
-                    //printf("higheridx: %d\n", higherIdx);
 
-                    // check to see if it is in the available list, if it is, delete in idx array, avail ,and add it to removal list, else select a new rando idx
+                    // after we delete element in array, we decrease the highest value it can get a random idx from
+                    higherIdx--; 
+
                     bool nodeCheck = checkNode(availableListHead, numToDeleteOrAdd);
 
+                    // If the student's number is found in the availableList it can delete it and add it to the removal list
+                    // The student's name is then added into the struct
                     if(nodeCheck == true)
                     {
-                        //printf("nodeCheck Passes for idx: \t%d which is: \t%d\n", randomIdx, numToDeleteOrAdd);
                         deleteNode(&availableListHead, numToDeleteOrAdd);
                         addNodeToEnd(&removalListHead, numToDeleteOrAdd);
                         strcpy(d[p].facebookFrame[i], CNYParticipants[numToDeleteOrAdd]);
-
-                        // //DEBUG - Checking the linked lists to see what is happening
-                        // printf("Available List: \n");
-                        // printList(availableListHead);
-                        // printf("\n");
-                        // printf("\n");
-                        // printf("\n");
-                        // printf("Removal List: \n");
-                        // printList(removalListHead);
-                        // printf("\n");
-                        // printf("\n");
-                        // printf("\n");
-                        // printf("The name that was added: %s\n", d[p].facebookFrame[i] );
-                        // printf("\n ---------------------------------------------------------------------------------- \n");
-
                         flag = 0;
                     }
+
+                    // Error Check
                     else 
                     {
                         printf("nodeCheck FAILED.\n");
@@ -736,61 +602,28 @@ int main (int argc, const char* argv[])
         
     }
 
-    // printf("\n");
-    // printf("\n");
-    // printf("\n");
-    // printf("\n");
-    // printf("\n");
-    // printf("\n");
-    // printf("HigherIdx: %d\n", higherIdx);
-    // printf("Available List: \n");
-    // printList(availableListHead);
-    // printf("\n");
-    // printf("\n");
-    // printf("\n");
-    // printf("Removal List: \n");
-    // printList(removalListHead);
-    // printf("\n");
-    // printf("\n");
-    // printf("\n");
-    // printf("Array Index: \n");
-    // for(int lol = 0; lol  < idxArraySize; lol++)
-    // {
-    //     printf("%d\t", participantIdx[lol]);
-    // }
-    // printf("\n");
+    /***********************************************************************************************************************                                      
+    PRINTING TO TXT FILE
+    ***********************************************************************************************************************/
+
+    /*
     
-  
+    This section focuses on outputting the results all stored in the structures into a
+    text file to be easily seen by the user. 
+    
+    */
 
-    // Printing out everything now to a txt file
-
-    //DEBUG - see if all struct values print out
-    for(int check = 0; check < numberOfDays; check++)
-    {
-        printf("Day: %s\n", d[check].day);
-        printf("Event Sharing Names: ");
-        for(int i = 0; i < eventSharingSize; i++) 
-        {
-            printf("%s, ", d[check].eventSharing[i]);
-        }
-        printf("\n");
-        printf("Facebook Frame Names: ");
-        for(int j = 0; j < facebookFrameSize; j++)
-        {
-            printf("%s, ", d[check].facebookFrame[j]);
-        }
-        printf("\n");
-        printf("\n");
-    }
-
-
+    // Create a text file named "Marketing Schedule.txt" to be written to by the user
     FILE *fp = fopen("Marketing Schedule.txt", "w");
 
+    // Error check in case the file was not able to be opened
     if(fp == NULL)
     {
         printf("Could not open file");
     }
 
+    // Keep track of the Day number to keep track of the Day Number's results from the struct
+    // Muliple flags are initialized to keep track when to output each char array value from the struct
     // 1 = true 0 = false
     int dayNumber = 0;
     int dateFlag = 1;
@@ -798,20 +631,23 @@ int main (int argc, const char* argv[])
     int datePerson2 = 0;
     int datePerson3 = 0;
     
-    for(int s = 0; s < (2 + (4 * 17)); s++) //70
+    // 67 because of the amount of lines I'll need to create the table
+    for(int s = 0; s < 67; s++)
     {
         // I know this is long... I am not sure an equation that can simplify this pattern
+        // Divider lines
         if(s == 0 || s == 2 || s == 6 || s == 10 ||
             s == 14 || s == 18 || s == 22 || s == 26 ||
             s == 30 || s == 34 || s == 38 || s == 42 ||
             s == 46 || s == 50 || s == 54 || s == 58 ||
-            s == 62 || s == 66 || s == 70) 
+            s == 62 || s == 66) 
         {
             fprintf(fp, "---------------------------------------------------------------------------------------");
             fprintf(fp, "\n");
             continue;
         }
 
+        // This prints out the initial header of the table only executed once in for loop
         if(s == 1)
         {
             fprintf(fp, "%-10s | %-25s | %-25s", "Date", "Sharing Event", "Sharing Facebook Frame");
@@ -819,7 +655,17 @@ int main (int argc, const char* argv[])
             continue;
         }
 
-        // Flag check for if date needs to be implemented
+        /*
+
+        When one if statement is triggered by a flag, the initial one will turn off and the next flag will turn on for the next
+        iteration in the for loop. This helps when the printing names in each row.
+
+        dateFlag ON -> print date -> dateflag OFF-> datePerson1 flag ON -> print first array struct's values -> 
+        datePerson1 Flag OFF -> datePerson2 flag ON -> print second array struct's values -> datePerson2 OFF ->
+        datePerson3 ON -> print -> datePerson3 OFF -> datePerson1 ON -> dateFlag ON -> dayNumber INCREMENT
+
+        */
+
         if(dateFlag == 1) 
         {
             fprintf(fp, "%-10s ", d[dayNumber].day);
@@ -857,6 +703,7 @@ int main (int argc, const char* argv[])
 
     }
 
+    // Close the file to stop editing
     fclose(fp);
 
     return 0;
