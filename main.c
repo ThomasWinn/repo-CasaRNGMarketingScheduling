@@ -2,17 +2,6 @@
 Created by Thomas Nguyen
 12/30/2019
 https://github.com/ThomasWinn
-
-TODO:
-
-EXPLAIN IN DETAIL WHAT EACH FUNCTION DOES ANDS WHY
-
-
-NOTE: 
-
-I create a linked list of available (based on array indexes) cny participants and initialize a linkedlist for removal.
-Everytime we use the random number generator, we remove participant from the available list to removal list.
-We do all this to randomly get participants to market on certain days.
 */
 
 #include <stdio.h>
@@ -22,13 +11,12 @@ We do all this to randomly get participants to market on certain days.
 #include <math.h>
 #include <stdbool.h>
 
-// All CASA CNY Marketing Participants
-// Can be edited for future use 
-
 /***********************************************************************************************************************                                      
 GLOBAL ARRAYS
 ***********************************************************************************************************************/
 
+// EDITABLE
+// All CASA CNY Marketing Participants
 char* CNYParticipants[] = 
 {
     "Eileen Jiang",
@@ -66,6 +54,7 @@ char* CNYParticipants[] =
     "Mai Yang"
 };
 
+// EDITABLE
 // Dates for marketing scheduling
 char* schedulingDates[] = 
 {
@@ -87,7 +76,8 @@ char* schedulingDates[] =
     "01/31/2020"
 };
 
-
+// A list of participant indexes
+// Amount of participants must equal the amount of indexes
 int participantIdx[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 
                         15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
                         29, 30, 31, 32};
@@ -121,12 +111,6 @@ struct Date
     char* facebookFrame[3][50];
 };
 
-struct Student 
-{
-    char name[50];
-    int number;
-};
-
 /***********************************************************************************************************************                                      
 FUNCTIONS
 ***********************************************************************************************************************/
@@ -137,18 +121,18 @@ int sorter(const void* a, const void* b)
     return strcmp(*(const char**)a, *(const char**)b);
 }
 
+// Returns a random number from 0 - 32 inclusive meaning 0 and 32 are possibilities as well
 int getRandomIdx(int lower, int higher) 
 {
-    //srand(time(0));
     int idx = (rand() % (higher - lower + 1)) + lower;
-    //srand(time(0));
     return idx;
 }
 
+// Deletes an element out of the participantIdx array at the specified index then decrease the array size
+// Returns the element that got deleted
 int deleteElementFromArray (int array[], int idx, int arraySize)
 {   
     int target = -1;
-
 
     // Deletion not possible if position wanting to be deleted is greater than size of array
     if(idx > arraySize || idx < 0)
@@ -162,17 +146,16 @@ int deleteElementFromArray (int array[], int idx, int arraySize)
         
         arraySize--;
         
-        for (int c = idx; c < arraySize; c++) // c = index
+        for (int c = idx; c < arraySize; c++) 
         {
             array[c] = array[c+1];
         }
     }
     
-
     return target;
 }
 
-// adds a new node to end
+// adds a new node to end of a specified linked list also adds a number to the data part of that node
 void addNodeToEnd (struct Node** head_ref, int num)
 {
     struct Node* newNode = (struct Node*) malloc(sizeof(struct Node));
@@ -185,7 +168,6 @@ void addNodeToEnd (struct Node** head_ref, int num)
     if(*head_ref == NULL)
     {
         *head_ref = newNode;
-        //printf("First Node: %d\n", num);
         return;
     }
     while (last->next != NULL)
@@ -193,7 +175,6 @@ void addNodeToEnd (struct Node** head_ref, int num)
         last = last->next;
     }
     last->next = newNode;
-    //printf("Node added: %d\n", num);
     return;
 }
 
@@ -279,7 +260,7 @@ void setLinkedListsAndIdxArray(struct Node *aLLHead, struct Node *rLLHead, int p
     // resetting the particpantIdx array and idxArraySize global variables
     idxArraySize = 33;
     int step = 0;
-    for(int i = 0; i < idxArraySize; i++) // {0,1,2,3,...,32}
+    for(int i = 0; i < idxArraySize; i++) 
     {
         participantIdx[i] = step;
         step++;
@@ -317,16 +298,6 @@ int main (int argc, const char* argv[])
     qsort(CNYParticipants, numberOfParticipants, sizeof(CNYParticipants[0]), sorter);
 
     setLinkedListsAndIdxArray(availableListHead, removalListHead, numberOfParticipants);
-
-    // Assign number to everyone
-    struct Student participant[numberOfParticipants];
-    for(int l = 0; l < numberOfParticipants; l++)
-    {
-        strcpy(participant[l].name, CNYParticipants[l]);
-        participant[l].number = l + 1;
-    }
-
-   
 
     // Initialize the Date structure
     // array of structures, d
