@@ -76,6 +76,7 @@ char* schedulingDates[] =
     "01/31/2020"
 };
 
+// EDITABLE
 // A list of participant indexes
 // Amount of participants must equal the amount of indexes
 int participantIdx[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 
@@ -104,11 +105,12 @@ struct Node
     struct Node* next;
 };
 
+// EDITABLE
 struct Date 
 {
-    char day[15];
-    char* eventSharing[3][50];
-    char* facebookFrame[3][50];
+    char day[15]; 
+    char* eventSharing[3][50]; // EDITABLE - Change to max number of people scheduled per day
+    char* facebookFrame[3][50]; // EDITABLE - Change to max number of people scheduled per day
 };
 
 /***********************************************************************************************************************                                      
@@ -122,6 +124,7 @@ int sorter(const void* a, const void* b)
 }
 
 // Returns a random number from 0 - 32 inclusive meaning 0 and 32 are possibilities as well
+// I tried to make this completely random after each seed, but when I add srand(time(0)), it does not randomize completely after each recompilation
 int getRandomIdx(int lower, int higher) 
 {
     int idx = (rand() % (higher - lower + 1)) + lower;
@@ -245,6 +248,7 @@ void printList(struct Node *node)
     }
 }
 
+// EDITABLE
 // Sets the LinkedLists and idxArray values to its default numbers
 // idxArray = {0,1,2,3,...,32} SIZE 33
 void setLinkedListsAndIdxArray(struct Node *aLLHead, struct Node *rLLHead, int participantTotal)
@@ -258,7 +262,7 @@ void setLinkedListsAndIdxArray(struct Node *aLLHead, struct Node *rLLHead, int p
     }
 
     // resetting the particpantIdx array and idxArraySize global variables
-    idxArraySize = 33;
+    idxArraySize = 33; // EDITABLE - Change to number of paraticipants / people
     int step = 0;
     for(int i = 0; i < idxArraySize; i++) 
     {
@@ -275,7 +279,7 @@ MAIN
 
 int main (int argc, const char* argv[]) 
 {
-
+    // EDITABLE - Do (numberOfParticpants % numberOfDays) = excess amount of randomNumX needed per day 
     // Initialize common variable that will be used later in the code
     // These values will tell us which dates to fill the max amount of names to the particular date
     int randomNumOne;
@@ -284,15 +288,13 @@ int main (int argc, const char* argv[])
     int randomNumFour;
     int randomNumFive;
 
+    // Gets number of cny participants and number of scheduling days
+    int numberOfParticipants = sizeof(CNYParticipants) / sizeof(CNYParticipants[0]); 
+    int numberOfDays = sizeof(schedulingDates) / sizeof(schedulingDates[0]);
+
     // These represent the lowest and highest index to pick a random number from
     int lowerIdx = 0;
-    int higherIdx = 32;
-
-    
-
-    // Gets number of cny participants and number of scheduling days
-    int numberOfParticipants = sizeof(CNYParticipants) / sizeof(CNYParticipants[0]); //33
-    int numberOfDays = sizeof(schedulingDates) / sizeof(schedulingDates[0]); //17
+    int higherIdx = numberOfParticipants - 1; 
 
     // Sorts the list of people alphabetically by first name given an array
     qsort(CNYParticipants, numberOfParticipants, sizeof(CNYParticipants[0]), sorter);
@@ -336,7 +338,7 @@ int main (int argc, const char* argv[])
 
     higherIdx = numberOfDays;
     randomNumOne = getRandomIdx(lowerIdx, higherIdx);
-    higherIdx = 32;
+    higherIdx = numberOfParticipants - 1;
 
     /*
     
@@ -390,7 +392,8 @@ int main (int argc, const char* argv[])
             continue;
         }
         
-        // 2 people per day. -1 because sharing size = 3 and we make it 2
+        // This will have the hold the condition of holding one less name 
+        // My example - 2 people per day. -1 because sharing size = 3 and we make it 2
         for(int i = 0; i < (eventSharingSize - 1); i++) 
         {
             int flag = 1;
@@ -437,7 +440,7 @@ int main (int argc, const char* argv[])
     // higherIdx needs resetting as it was decremented to 0
     // global idxArray needs resetting and available/removal linked list
 
-    higherIdx = 32;
+    higherIdx = numberOfParticipants - 1;
     setLinkedListsAndIdxArray(availableListHead, removalListHead, numberOfParticipants);
 
     /*
@@ -477,7 +480,7 @@ int main (int argc, const char* argv[])
     
 
     lowerIdx = 0;
-    higherIdx = 32;
+    higherIdx = numberOfParticipants - 1;
     setLinkedListsAndIdxArray(availableListHead, removalListHead, numberOfParticipants);
 
     for (int p = 0; p < numberOfDays; p++)
@@ -531,7 +534,8 @@ int main (int argc, const char* argv[])
 
         }
     
-        // fill struct for more only 2 people 
+        // This will have the hold the condition of holding one less name 
+        // My example - 2 people per day. -1 because sharing size = 3 and we make it 2
         else
         {
             for(int i = 0; i < (facebookFrameSize-1); i++) 
@@ -602,6 +606,7 @@ int main (int argc, const char* argv[])
     int datePerson2 = 0;
     int datePerson3 = 0;
     
+    // EDITABLE - You might not have a total of 67 lines and not have the same layout as me
     // 67 because of the amount of lines I'll need to create the table
     for(int s = 0; s < 67; s++)
     {
@@ -637,6 +642,7 @@ int main (int argc, const char* argv[])
 
         */
 
+        // EDITABLE - desired layout may not look like mine
         if(dateFlag == 1) 
         {
             fprintf(fp, "%-10s ", d[dayNumber].day);
