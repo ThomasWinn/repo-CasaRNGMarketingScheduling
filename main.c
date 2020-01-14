@@ -344,7 +344,6 @@ int main (int argc, const char* argv[])
     
     Iterate through all the days and add the date to the struct.
 
-    
     */
 
     for(int m = 0; m < numberOfDays; m++) 
